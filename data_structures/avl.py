@@ -202,7 +202,20 @@ class AVLTree:
             res.append((node.key, node.value))
         _post(self.root)
         return res
-
+    
+    def is_balanced(self):
+        """Check if the AVL tree is balanced (balance factor <= 1 for all nodes)."""
+        def _check(node):
+            if not node:
+                return True, 0  # balanced, height 0
+            left_bal, left_h = _check(node.left)
+            right_bal, right_h = _check(node.right)
+            node_balanced = left_bal and right_bal and abs(left_h - right_h) <= 1
+            node_height = 1 + max(left_h, right_h)
+            return node_balanced, node_height
+        balanced, _ = _check(self.root)
+        return balanced
+    
     # Pretty-print (for debugging small trees)
     def _str(self, node, level=0, pref="Root: "):
         """Helper to print the tree structure."""
