@@ -24,15 +24,20 @@ class TestRBTreeBasicOperations(unittest.TestCase):
     
     def test_empty_tree(self):
         """Test operations on an empty tree."""
+        # Empty tree root should be the NIL sentinel node
         self.assertEqual(self.tree.root, self.tree.NIL)
+        # Search in empty tree should return False
         self.assertFalse(self.tree.search(1))
     
     def test_single_insertion(self):
         """Test inserting a single element."""
         self.tree.insert(10)
+        # Root should no longer be NIL
         self.assertNotEqual(self.tree.root, self.tree.NIL)
+        # Root key should be the inserted key
         self.assertEqual(self.tree.root.key, 10)
-        self.assertEqual(self.tree.root.color, 'black')  # Root is always black
+        # Root must always be black in Red-Black tree
+        self.assertEqual(self.tree.root.color, 'black')
     
     def test_multiple_insertions_and_search(self):
         """Test inserting multiple elements and searching."""
@@ -40,10 +45,11 @@ class TestRBTreeBasicOperations(unittest.TestCase):
         for key in keys:
             self.tree.insert(key)
         
+        # All inserted keys should be findable
         for key in keys:
             self.assertTrue(self.tree.search(key))
         
-        # Non-existent keys
+        # Non-existent keys should return False
         self.assertFalse(self.tree.search(1))
         self.assertFalse(self.tree.search(30))
     
@@ -52,7 +58,7 @@ class TestRBTreeBasicOperations(unittest.TestCase):
         self.tree.insert(10)
         self.tree.insert(10)
         
-        # Count nodes manually (should be 1)
+        # Count total nodes in tree (should be 1)
         count = 0
         def count_nodes(node):
             nonlocal count
@@ -62,6 +68,7 @@ class TestRBTreeBasicOperations(unittest.TestCase):
                 count_nodes(node.right)
         
         count_nodes(self.tree.root)
+        # Only one node should exist
         self.assertEqual(count, 1)
     
     def test_delete_operations(self):
@@ -70,11 +77,11 @@ class TestRBTreeBasicOperations(unittest.TestCase):
         for key in keys:
             self.tree.insert(key)
         
-        # Delete leaf node
+        # Delete a leaf node
         self.tree.delete(5)
         self.assertFalse(self.tree.search(5))
         
-        # Delete node with two children
+        # Delete a node with two children
         self.tree.delete(20)
         self.assertFalse(self.tree.search(20))
         
@@ -82,6 +89,7 @@ class TestRBTreeBasicOperations(unittest.TestCase):
         for key in [10, 30, 15, 25, 35]:
             self.assertTrue(self.tree.search(key))
         
+        # RB-tree properties should be maintained
         self.assertTrue(self.tree.validate_black_height())
     
     def test_delete_all_nodes(self):
@@ -91,9 +99,11 @@ class TestRBTreeBasicOperations(unittest.TestCase):
         for key in keys:
             self.tree.insert(key)
         
+        # Delete all nodes
         for key in keys:
             self.tree.delete(key)
         
+        # Tree should be empty (only NIL remains)
         self.assertEqual(self.tree.root, self.tree.NIL)
 
 
@@ -108,9 +118,10 @@ class TestRBTreeProperties(unittest.TestCase):
         """Test that root is always black after any operations."""
         for i in range(1, 21):
             self.tree.insert(i)
+            # Root must always be black
             self.assertEqual(self.tree.root.color, 'black')
         
-        # Delete some nodes
+        # Delete some nodes and verify root remains black
         for i in [5, 10, 15]:
             self.tree.delete(i)
             if self.tree.root != self.tree.NIL:
@@ -124,15 +135,17 @@ class TestRBTreeProperties(unittest.TestCase):
         for key in keys:
             self.tree.insert(key)
         
+        # Helper function to check the red-black property
         def check_red_property(node):
             if node == self.tree.NIL:
                 return True
             
+            # If node is red, both children must be black
             if node.color == 'red':
-                # Both children must be black
                 self.assertEqual(node.left.color, 'black')
                 self.assertEqual(node.right.color, 'black')
             
+            # Recursively check both subtrees
             return check_red_property(node.left) and check_red_property(node.right)
         
         self.assertTrue(check_red_property(self.tree.root))
@@ -144,12 +157,14 @@ class TestRBTreeProperties(unittest.TestCase):
         
         for key in keys:
             self.tree.insert(key)
+            # Black height should be consistent after each insertion
             self.assertTrue(self.tree.validate_black_height())
         
-        # Delete half the keys and check again
+        # Delete half the keys and verify black height property is maintained
         to_delete = random.sample(keys, 50)
         for key in to_delete:
             self.tree.delete(key)
+            # Black height must remain consistent after each deletion
             self.assertTrue(self.tree.validate_black_height())
     
     def test_bst_property_maintained(self):
@@ -167,6 +182,7 @@ class TestRBTreeProperties(unittest.TestCase):
                 inorder(node.right)
         
         inorder(self.tree.root)
+        # In-order traversal should be sorted
         self.assertEqual(result, sorted(keys))
 
 
@@ -178,12 +194,14 @@ class TestRBTreeLargeDatasets(unittest.TestCase):
         tree = RBTree()
         n = 10000
         
+        # Insert sequential values
         for i in range(n):
             tree.insert(i)
         
+        # Black height property should be maintained
         self.assertTrue(tree.validate_black_height())
         
-        # Verify random samples
+        # Verify random samples are present
         for i in range(0, n, 1000):
             self.assertTrue(tree.search(i))
     
@@ -192,9 +210,11 @@ class TestRBTreeLargeDatasets(unittest.TestCase):
         tree = RBTree()
         n = 10000
         
+        # Insert in reverse order
         for i in range(n, 0, -1):
             tree.insert(i)
         
+        # Black height should be maintained
         self.assertTrue(tree.validate_black_height())
         
         # Verify random samples
@@ -210,6 +230,7 @@ class TestRBTreeLargeDatasets(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
+        # Black height should be consistent
         self.assertTrue(tree.validate_black_height())
         
         # Verify random samples
@@ -221,21 +242,22 @@ class TestRBTreeLargeDatasets(unittest.TestCase):
         tree = RBTree()
         n = 5000
         
-        # Insert
+        # Insert n nodes
         for i in range(n):
             tree.insert(i)
         
-        # Delete half
+        # Delete half the nodes
         for i in range(0, n, 2):
             tree.delete(i)
-            if i % 100 == 0:  # Check periodically
+            # Check properties periodically to catch errors early
+            if i % 100 == 0:
                 self.assertTrue(tree.validate_black_height())
         
-        # Verify remaining keys
+        # Verify remaining keys are still present
         for i in range(1, n, 2):
             self.assertTrue(tree.search(i))
         
-        # Verify deleted keys
+        # Verify deleted keys are gone
         for i in range(0, n, 2):
             self.assertFalse(tree.search(i))
 
@@ -250,6 +272,7 @@ class TestRBTreeStressTests(unittest.TestCase):
         
         random.seed(42)
         for _ in range(5000):
+            # Randomly choose an operation
             operation = random.choice(['insert', 'delete', 'search'])
             key = random.randint(1, 500)
             
@@ -261,10 +284,11 @@ class TestRBTreeStressTests(unittest.TestCase):
                 inserted_keys.discard(key)
             elif operation == 'search':
                 result = tree.search(key)
+                # Verify search consistency
                 if key in inserted_keys:
                     self.assertTrue(result)
             
-            # Validate periodically
+            # Validate properties periodically
             if _ % 100 == 0:
                 self.assertTrue(tree.validate_black_height())
     
@@ -274,17 +298,19 @@ class TestRBTreeStressTests(unittest.TestCase):
         keys = list(range(1, 101))
         
         for _ in range(20):
-            # Insert all
+            # Insert all keys
             for key in keys:
                 tree.insert(key)
             
+            # Properties should be maintained
             self.assertTrue(tree.validate_black_height())
             
-            # Delete all
+            # Delete all in random order
             random.shuffle(keys)
             for key in keys:
                 tree.delete(key)
         
+        # After all cycles, tree should be empty
         self.assertEqual(tree.root, tree.NIL)
     
     def test_alternating_min_max_deletions(self):
@@ -295,10 +321,10 @@ class TestRBTreeStressTests(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
-        # Alternately delete min and max
+        # Alternately delete minimum and maximum elements
         count = 0
         while tree.root != tree.NIL:
-            # Find and delete min
+            # Find and delete minimum
             node = tree.root
             while node.left != tree.NIL:
                 node = node.left
@@ -309,7 +335,7 @@ class TestRBTreeStressTests(unittest.TestCase):
             if tree.root == tree.NIL:
                 break
             
-            # Find and delete max
+            # Find and delete maximum
             node = tree.root
             while node.right != tree.NIL:
                 node = node.right
@@ -322,6 +348,7 @@ class TestRBTreeStressTests(unittest.TestCase):
             if count % 10 == 0 and tree.root != tree.NIL:
                 self.assertTrue(tree.validate_black_height())
         
+        # Tree should be completely empty
         self.assertEqual(tree.root, tree.NIL)
     
     def test_delete_root_repeatedly(self):
@@ -332,13 +359,16 @@ class TestRBTreeStressTests(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
-        # Delete root 100 times
+        # Repeatedly delete root node 100 times
         for i in range(100):
             if tree.root != tree.NIL:
+                # Delete current root
                 root_key = tree.root.key
                 tree.delete(root_key)
+                # Key should no longer exist
                 self.assertFalse(tree.search(root_key))
                 
+                # Validate periodically
                 if i % 10 == 0 and tree.root != tree.NIL:
                     self.assertTrue(tree.validate_black_height())
 
@@ -355,9 +385,10 @@ class TestRBTreeEdgeCases(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
+        # Black height should be valid with mixed keys
         self.assertTrue(tree.validate_black_height())
         
-        # Check BST property
+        # Check BST property is maintained
         result = []
         def inorder(node):
             if node != tree.NIL:
@@ -366,6 +397,7 @@ class TestRBTreeEdgeCases(unittest.TestCase):
                 inorder(node.right)
         
         inorder(tree.root)
+        # In-order should be sorted (including negatives)
         self.assertEqual(result, sorted(keys))
     
     def test_string_keys(self):
@@ -377,9 +409,10 @@ class TestRBTreeEdgeCases(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
+        # Black height should be valid with string keys
         self.assertTrue(tree.validate_black_height())
         
-        # Verify random samples
+        # Verify random samples are present
         for key in random.sample(keys, 100):
             self.assertTrue(tree.search(key))
     
@@ -392,8 +425,10 @@ class TestRBTreeEdgeCases(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
+        # Black height should be valid
         self.assertTrue(tree.validate_black_height())
         
+        # Verify samples
         for key in random.sample(keys, 100):
             self.assertTrue(tree.search(key))
 
@@ -406,10 +441,11 @@ class TestRBTreePerformance(unittest.TestCase):
         tree = RBTree()
         n = 10000
         
+        # Insert n keys
         for i in range(n):
             tree.insert(i)
         
-        # Calculate actual height
+        # Calculate actual tree height
         def height(node):
             if node == tree.NIL:
                 return 0
@@ -417,11 +453,12 @@ class TestRBTreePerformance(unittest.TestCase):
         
         h = height(tree.root)
         
-        # Red-Black tree height should be at most 2*log2(n+1)
+        # Red-Black tree height is guaranteed to be at most 2*log2(n+1)
         import math
         max_height = 2 * math.log2(n + 1)
         
-        self.assertLessEqual(h, max_height)
+        # Actual height should be much less than theoretical maximum
+        self.assertLess(h, max_height)
     
     def test_operations_complete_quickly(self):
         """Test that operations complete in reasonable time."""
@@ -448,7 +485,7 @@ class TestRBTreePerformance(unittest.TestCase):
             tree.delete(i)
         delete_time = time.time() - start
         
-        # Operations should complete in reasonable time
+        # Verify operations complete in reasonable time
         self.assertLess(insert_time, 3.0, "Insertions took too long")
         self.assertLess(search_time, 0.5, "Searches took too long")
         self.assertLess(delete_time, 0.5, "Deletions took too long")
@@ -466,6 +503,7 @@ class TestRBTreeConsistency(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
+        # Verify all parent pointers are correct
         def check_parents(node):
             if node == tree.NIL:
                 return True
@@ -493,11 +531,12 @@ class TestRBTreeConsistency(unittest.TestCase):
         
         visited = set()
         
+        # Traverse and check for cycles
         def check_no_cycles(node):
             if node == tree.NIL:
                 return True
             
-            # Check if we've seen this node before
+            # Check if we've already visited this node
             node_id = id(node)
             self.assertNotIn(node_id, visited)
             visited.add(node_id)
@@ -514,11 +553,13 @@ class TestRBTreeConsistency(unittest.TestCase):
         for key in keys:
             tree.insert(key)
         
+        # Count nodes in tree
         def count_nodes(node):
             if node == tree.NIL:
                 return 0
             return 1 + count_nodes(node.left) + count_nodes(node.right)
         
+        # Should have 500 nodes
         self.assertEqual(count_nodes(tree.root), 500)
         
         # Delete 250 nodes
@@ -526,7 +567,9 @@ class TestRBTreeConsistency(unittest.TestCase):
         for key in to_delete:
             tree.delete(key)
         
+        # Should have 250 nodes remaining
         self.assertEqual(count_nodes(tree.root), 250)
+
 
 if __name__ == '__main__':
     # Run tests with verbose output

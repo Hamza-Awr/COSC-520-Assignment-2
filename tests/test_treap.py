@@ -20,27 +20,33 @@ class TestTreapNode(unittest.TestCase):
     
     def test_node_creation_with_priority(self):
         """Test that a node is created with specified priority."""
+        # Create node with explicit priority
         node = TreapNode(10, priority=0.5)
         self.assertEqual(node.key, 10)
         self.assertEqual(node.priority, 0.5)
+        # Child pointers should be None initially
         self.assertIsNone(node.left)
         self.assertIsNone(node.right)
     
     def test_node_creation_random_priority(self):
         """Test that a node is created with random priority if not specified."""
         random.seed(42)
+        # Create node without specifying priority
         node = TreapNode(10)
         self.assertEqual(node.key, 10)
+        # Priority should be randomly assigned
         self.assertIsNotNone(node.priority)
+        # Priority should be in [0.0, 1.0)
         self.assertGreaterEqual(node.priority, 0.0)
         self.assertLessEqual(node.priority, 1.0)
     
     def test_different_nodes_different_priorities(self):
         """Test that different nodes get different random priorities."""
+        # Create multiple nodes
         nodes = [TreapNode(i) for i in range(10)]
         priorities = [node.priority for node in nodes]
         
-        # Very unlikely all 10 priorities are the same
+        # Very unlikely all 10 priorities are exactly the same
         self.assertGreater(len(set(priorities)), 1)
 
 
@@ -54,13 +60,17 @@ class TestTreapBasicOperations(unittest.TestCase):
     
     def test_empty_treap(self):
         """Test operations on an empty treap."""
+        # Empty treap should have no root
         self.assertIsNone(self.treap.root)
+        # Search in empty treap should return False
         self.assertFalse(self.treap.search_key(1))
     
     def test_single_insertion(self):
         """Test inserting a single element."""
         self.treap.insert_key(10)
+        # Root should now exist
         self.assertIsNotNone(self.treap.root)
+        # Root key should be the inserted key
         self.assertEqual(self.treap.root.key, 10)
     
     def test_multiple_insertions(self):
@@ -69,7 +79,7 @@ class TestTreapBasicOperations(unittest.TestCase):
         for key in keys:
             self.treap.insert_key(key)
         
-        # Verify all keys are present
+        # All keys should be present
         for key in keys:
             self.assertTrue(self.treap.search_key(key))
     
@@ -79,6 +89,7 @@ class TestTreapBasicOperations(unittest.TestCase):
         for key in keys:
             self.treap.insert_key(key)
         
+        # All inserted keys should be found
         for key in keys:
             self.assertTrue(self.treap.search_key(key))
     
@@ -87,6 +98,7 @@ class TestTreapBasicOperations(unittest.TestCase):
         self.treap.insert_key(10)
         self.treap.insert_key(20)
         
+        # Non-existent keys should not be found
         self.assertFalse(self.treap.search_key(5))
         self.assertFalse(self.treap.search_key(15))
         self.assertFalse(self.treap.search_key(25))
@@ -96,7 +108,9 @@ class TestTreapBasicOperations(unittest.TestCase):
         self.treap.insert_key(10)
         self.treap.delete_key(10)
         
+        # After deletion, tree should be empty
         self.assertIsNone(self.treap.root)
+        # Key should no longer be found
         self.assertFalse(self.treap.search_key(10))
     
     def test_delete_leaf_node(self):
@@ -105,10 +119,12 @@ class TestTreapBasicOperations(unittest.TestCase):
         for key in keys:
             self.treap.insert_key(key)
         
-        # Find a leaf (depends on priorities, but one should be leaf)
+        # Delete a node
         self.treap.delete_key(10)
         
+        # Deleted key should not be found
         self.assertFalse(self.treap.search_key(10))
+        # Other keys should still be present
         self.assertTrue(self.treap.search_key(20))
         self.assertTrue(self.treap.search_key(30))
     
@@ -119,6 +135,7 @@ class TestTreapBasicOperations(unittest.TestCase):
             self.treap.insert_key(key)
         
         self.treap.delete_key(20)
+        # Deleted key should not be found
         self.assertFalse(self.treap.search_key(20))
         
         # All other keys should still be present
@@ -130,7 +147,7 @@ class TestTreapBasicOperations(unittest.TestCase):
         self.treap.insert_key(10)
         self.treap.insert_key(20)
         
-        # Should not raise error
+        # Should not raise error when deleting non-existent key
         self.treap.delete_key(30)
         
         # Original keys should still be present
@@ -142,7 +159,7 @@ class TestTreapBasicOperations(unittest.TestCase):
         self.treap.insert_key(10)
         self.treap.insert_key(10)
         
-        # Should still be able to find it
+        # Key should still be findable
         self.assertTrue(self.treap.search_key(10))
 
 
@@ -169,6 +186,7 @@ class TestTreapProperties(unittest.TestCase):
                 inorder(node.right)
         
         inorder(self.treap.root)
+        # In-order traversal should be sorted (BST property)
         self.assertEqual(result, sorted(keys))
     
     def test_heap_property(self):
@@ -177,18 +195,23 @@ class TestTreapProperties(unittest.TestCase):
         for key in keys:
             self.treap.insert_key(key)
         
+        # Helper function to check heap property
         def check_heap_property(node):
             """Check that parent priority >= children priorities."""
             if not node:
                 return True
             
+            # Left child's priority should be <= parent's priority
             if node.left and node.left.priority > node.priority:
                 return False
+            # Right child's priority should be <= parent's priority
             if node.right and node.right.priority > node.priority:
                 return False
             
+            # Recursively check both subtrees
             return check_heap_property(node.left) and check_heap_property(node.right)
         
+        # Verify heap property is maintained
         self.assertTrue(check_heap_property(self.treap.root))
     
     def test_bst_property_after_deletions(self):
@@ -211,6 +234,7 @@ class TestTreapProperties(unittest.TestCase):
                 inorder(node.right)
         
         inorder(self.treap.root)
+        # Remaining keys should still be sorted
         self.assertEqual(result, sorted(result))
     
     def test_heap_property_after_deletions(self):
@@ -224,6 +248,7 @@ class TestTreapProperties(unittest.TestCase):
         for key in to_delete:
             self.treap.delete_key(key)
         
+        # Verify heap property is maintained after deletions
         def check_heap_property(node):
             if not node:
                 return True
@@ -247,11 +272,7 @@ class TestTreapRotations(unittest.TestCase):
     
     def test_insertion_triggers_rotations(self):
         """Test that insertions trigger rotations based on priorities."""
-        # Insert with specific priorities to force rotations
-        node1 = TreapNode(10, priority=0.3)
-        node2 = TreapNode(5, priority=0.5)
-        node3 = TreapNode(15, priority=0.7)
-        
+        # Insert nodes and verify tree structure is adjusted
         self.treap.root = self.treap.insert(None, 10)
         self.treap.root.priority = 0.3
         
@@ -260,7 +281,6 @@ class TestTreapRotations(unittest.TestCase):
             self.treap.root.left.priority = 0.5
         
         # After insertion, higher priority should be closer to root
-        # Due to rotations
         self.assertIsNotNone(self.treap.root)
     
     def test_properties_maintained_after_rotations(self):
@@ -278,6 +298,7 @@ class TestTreapRotations(unittest.TestCase):
                 inorder(node.right)
         
         inorder(self.treap.root)
+        # Should be sorted after rotations
         self.assertEqual(result, sorted(keys))
         
         # Check heap property
@@ -290,6 +311,7 @@ class TestTreapRotations(unittest.TestCase):
                 return False
             return check_heap(node.left) and check_heap(node.right)
         
+        # Heap property should be maintained
         self.assertTrue(check_heap(self.treap.root))
 
 
@@ -318,6 +340,7 @@ class TestTreapEdgeCases(unittest.TestCase):
                 inorder(node.right)
         
         inorder(treap.root)
+        # All keys should be present and sorted
         self.assertEqual(len(result), n)
         self.assertEqual(result, sorted(result))
     
@@ -357,10 +380,11 @@ class TestTreapEdgeCases(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
+        # All keys should be found
         for key in keys:
             self.assertTrue(treap.search_key(key))
         
-        # Check BST property
+        # Check BST property with negative keys
         result = []
         def inorder(node):
             if node:
@@ -369,6 +393,7 @@ class TestTreapEdgeCases(unittest.TestCase):
                 inorder(node.right)
         
         inorder(treap.root)
+        # Should be sorted including negatives
         self.assertEqual(result, sorted(keys))
     
     def test_string_keys(self):
@@ -380,10 +405,11 @@ class TestTreapEdgeCases(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
+        # All keys should be found
         for key in keys:
             self.assertTrue(treap.search_key(key))
         
-        # Check BST property
+        # Check BST property with strings
         result = []
         def inorder(node):
             if node:
@@ -392,6 +418,7 @@ class TestTreapEdgeCases(unittest.TestCase):
                 inorder(node.right)
         
         inorder(treap.root)
+        # Should be alphabetically sorted
         self.assertEqual(result, sorted(keys))
     
     def test_delete_all_nodes(self):
@@ -403,9 +430,11 @@ class TestTreapEdgeCases(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
+        # Delete all nodes
         for key in keys:
             treap.delete_key(key)
         
+        # Treap should be empty
         self.assertIsNone(treap.root)
     
     def test_alternating_insert_delete(self):
@@ -415,10 +444,11 @@ class TestTreapEdgeCases(unittest.TestCase):
         
         for i in range(100):
             treap.insert_key(i)
+            # Periodically delete to create alternating pattern
             if i % 3 == 0 and i > 0:
                 treap.delete_key(i - 1)
             
-            # Check properties are maintained
+            # Check BST property is maintained
             result = []
             def inorder(node):
                 if node:
@@ -427,6 +457,7 @@ class TestTreapEdgeCases(unittest.TestCase):
                     inorder(node.right)
             
             inorder(treap.root)
+            # Should always be sorted
             self.assertEqual(result, sorted(result))
 
 
@@ -439,12 +470,14 @@ class TestTreapStressTests(unittest.TestCase):
         random.seed(42)
         keys = [1, 2, 3, 4, 5]
         
+        # Repeat insert/delete cycles
         for _ in range(10):
             for key in keys:
                 treap.insert_key(key)
             for key in keys:
                 treap.delete_key(key)
         
+        # After all cycles, treap should be empty
         self.assertIsNone(treap.root)
     
     def test_random_operations_sequence(self):
@@ -454,6 +487,7 @@ class TestTreapStressTests(unittest.TestCase):
         
         random.seed(42)
         for _ in range(500):
+            # Randomly choose an operation
             operation = random.choice(['insert', 'delete', 'search'])
             key = random.randint(1, 100)
             
@@ -465,10 +499,11 @@ class TestTreapStressTests(unittest.TestCase):
                 inserted_keys.discard(key)
             elif operation == 'search':
                 result = treap.search_key(key)
+                # Verify search consistency
                 if key in inserted_keys:
                     self.assertTrue(result)
             
-            # Check BST property is maintained
+            # Verify BST property is maintained after every operation
             result = []
             def inorder(node):
                 if node:
@@ -489,11 +524,11 @@ class TestTreapStressTests(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
-        # Verify all present
+        # Verify all keys are present
         for key in keys:
             self.assertTrue(treap.search_key(key))
         
-        # Delete half
+        # Delete half the keys
         to_delete = random.sample(keys, 100)
         for key in to_delete:
             treap.delete_key(key)
@@ -511,16 +546,17 @@ class TestTreapStressTests(unittest.TestCase):
         """Test with all same priorities (degrades to BST)."""
         treap = Treap()
         
-        # Insert with same priority
+        # Insert with same priority for all nodes
         for i in range(10):
             treap.root = treap.insert(treap.root, i)
             if treap.root:
+                # Set all priorities to same value
                 current = treap.root
                 while current.right:
                     current = current.right
-                current.priority = 0.5  # Same priority for all
+                current.priority = 0.5
         
-        # Should still maintain BST property
+        # BST property should still hold
         result = []
         def inorder(node):
             if node:
@@ -529,6 +565,7 @@ class TestTreapStressTests(unittest.TestCase):
                 inorder(node.right)
         
         inorder(treap.root)
+        # Should still be sorted even with identical priorities
         self.assertEqual(result, sorted(result))
 
 
@@ -551,7 +588,7 @@ class TestTreapRandomization(unittest.TestCase):
         for key in keys:
             treap2.insert_key(key)
         
-        # Collect structures
+        # Collect tree structures (key, priority pairs)
         def collect_structure(node):
             if not node:
                 return []
@@ -560,7 +597,7 @@ class TestTreapRandomization(unittest.TestCase):
         struct1 = collect_structure(treap1.root)
         struct2 = collect_structure(treap2.root)
         
-        # Structures should be different (very unlikely to be the same)
+        # Structures should be different (very unlikely to be same)
         self.assertNotEqual(struct1, struct2)
     
     def test_expected_height(self):
@@ -572,6 +609,7 @@ class TestTreapRandomization(unittest.TestCase):
         for i in range(n):
             treap.insert_key(i)
         
+        # Calculate actual tree height
         def height(node):
             if not node:
                 return 0
@@ -583,6 +621,7 @@ class TestTreapRandomization(unittest.TestCase):
         import math
         max_expected_height = 4 * math.log2(n)
         
+        # Actual height should be reasonable
         self.assertLess(h, max_expected_height)
 
 
@@ -598,6 +637,7 @@ class TestTreapCorrectness(unittest.TestCase):
         
         for key in keys:
             treap.insert_key(key)
+            # Key should be immediately findable
             self.assertTrue(treap.search_key(key))
     
     def test_delete_search_consistency(self):
@@ -609,8 +649,10 @@ class TestTreapCorrectness(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
+        # Delete all keys
         for key in keys:
             treap.delete_key(key)
+            # Key should no longer be found
             self.assertFalse(treap.search_key(key))
     
     def test_operations_maintain_invariants(self):
@@ -624,6 +666,7 @@ class TestTreapCorrectness(unittest.TestCase):
             key = random.randint(1, 50)
             operations.append((op, key))
         
+        # Perform operations and verify invariants
         for op, key in operations:
             if op == 'insert':
                 treap.insert_key(key)
@@ -639,6 +682,7 @@ class TestTreapCorrectness(unittest.TestCase):
                     inorder(node.right)
             
             inorder(treap.root)
+            # Must remain sorted after every operation
             self.assertEqual(result, sorted(result))
             
             # Check heap property
@@ -651,6 +695,7 @@ class TestTreapCorrectness(unittest.TestCase):
                     return False
                 return check_heap(node.left) and check_heap(node.right)
             
+            # Heap property must be maintained
             self.assertTrue(check_heap(treap.root))
     
     def test_all_keys_reachable(self):
@@ -694,6 +739,7 @@ class TestTreapComparisonWithBST(unittest.TestCase):
             for key in keys:
                 treap.insert_key(key)
             
+            # Collect in-order traversal
             result = []
             def inorder(node):
                 if node:
@@ -702,6 +748,7 @@ class TestTreapComparisonWithBST(unittest.TestCase):
                     inorder(node.right)
             
             inorder(treap.root)
+            # Should be sorted
             self.assertEqual(result, sorted(keys))
     
     def test_min_max_keys(self):
@@ -729,6 +776,7 @@ class TestTreapComparisonWithBST(unittest.TestCase):
                 node = node.right
             return node.key
         
+        # Verify min and max
         self.assertEqual(find_min(treap.root), min(keys))
         self.assertEqual(find_max(treap.root), max(keys))
     
@@ -744,7 +792,7 @@ class TestTreapComparisonWithBST(unittest.TestCase):
         # Get sorted keys
         sorted_keys = sorted(keys)
         
-        # Collect inorder traversal
+        # Collect in-order traversal
         result = []
         def inorder(node):
             if node:
@@ -754,7 +802,7 @@ class TestTreapComparisonWithBST(unittest.TestCase):
         
         inorder(treap.root)
         
-        # Verify each key's position in sorted order
+        # Verify each key's position matches sorted order
         for i, key in enumerate(sorted_keys):
             self.assertEqual(result[i], key)
 
@@ -775,10 +823,10 @@ class TestTreapMemoryAndPerformance(unittest.TestCase):
         for i in range(100):
             treap.delete_key(i)
         
-        # Tree should be empty
+        # Tree should be completely empty
         self.assertIsNone(treap.root)
         
-        # Should be able to reuse
+        # Should be able to reuse treap
         treap.insert_key(50)
         self.assertTrue(treap.search_key(50))
     
@@ -808,8 +856,7 @@ class TestTreapMemoryAndPerformance(unittest.TestCase):
             treap.delete_key(i)
         delete_time = time.time() - start
         
-        # Operations should complete in reasonable time
-        # These are generous bounds - actual times should be much faster
+        # Operations should complete in reasonable time (generous bounds)
         self.assertLess(insert_time, 5.0, "Insertions took too long")
         self.assertLess(search_time, 1.0, "Searches took too long")
         self.assertLess(delete_time, 1.0, "Deletions took too long")
@@ -844,6 +891,7 @@ class TestTreapSpecialCases(unittest.TestCase):
         treap1.root = TreapNode(10, priority=0.9)
         treap1.root.left = TreapNode(5, priority=0.5)
         
+        # Both nodes should be findable
         self.assertTrue(treap1.search_key(10))
         self.assertTrue(treap1.search_key(5))
         
@@ -852,6 +900,7 @@ class TestTreapSpecialCases(unittest.TestCase):
         treap2.root = TreapNode(10, priority=0.9)
         treap2.root.right = TreapNode(15, priority=0.5)
         
+        # Both nodes should be findable
         self.assertTrue(treap2.search_key(10))
         self.assertTrue(treap2.search_key(15))
     
@@ -878,17 +927,18 @@ class TestTreapSpecialCases(unittest.TestCase):
                 inorder(node.right)
         
         inorder(treap.root)
+        # Should be sorted
         self.assertEqual(result, sorted(keys))
     
     def test_skewed_insertions(self):
         """Test handling of skewed insertion patterns."""
-        # All left insertions (ascending)
+        # All ascending insertions
         treap1 = Treap()
         random.seed(42)
         for i in range(1, 11):
             treap1.insert_key(i)
         
-        # BST property should still hold due to randomized priorities
+        # BST property should still hold despite ascending insertions
         result1 = []
         def inorder1(node):
             if node:
@@ -899,7 +949,7 @@ class TestTreapSpecialCases(unittest.TestCase):
         inorder1(treap1.root)
         self.assertEqual(result1, list(range(1, 11)))
         
-        # All right insertions (descending)
+        # All descending insertions
         treap2 = Treap()
         random.seed(42)
         for i in range(10, 0, -1):
@@ -924,10 +974,10 @@ class TestTreapSpecialCases(unittest.TestCase):
         for _ in range(10):
             treap.insert_key(5)
         
-        # Should still have only one node with that key
+        # Should still be found
         self.assertTrue(treap.search_key(5))
         
-        # Delete same key multiple times (only first should have effect)
+        # Delete same key multiple times (only first has effect)
         for _ in range(10):
             treap.delete_key(5)
         
@@ -968,6 +1018,7 @@ class TestTreapFloatingPointPriorities(unittest.TestCase):
         for i in range(50):
             treap.insert_key(i)
         
+        # Verify all priorities are in [0.0, 1.0]
         def check_priorities(node):
             if not node:
                 return True
@@ -988,6 +1039,7 @@ class TestTreapFloatingPointPriorities(unittest.TestCase):
         for i in range(100):
             treap.insert_key(i)
         
+        # Collect all priorities
         priorities = []
         def collect_priorities(node):
             if node:
@@ -999,7 +1051,8 @@ class TestTreapFloatingPointPriorities(unittest.TestCase):
         
         # Most priorities should be unique (allowing for rare collisions)
         unique_count = len(set(priorities))
-        self.assertGreater(unique_count, 95)  # At least 95% unique
+        # At least 95% should be unique
+        self.assertGreater(unique_count, 95)
     
     def test_explicit_priorities(self):
         """Test using explicit priorities."""
@@ -1015,7 +1068,7 @@ class TestTreapFloatingPointPriorities(unittest.TestCase):
         treap.root = treap.insert(treap.root, 70)
         treap.root.right.priority = 0.7
         
-        # Verify structure respects priorities
+        # Verify structure respects priorities (higher priority near root)
         self.assertEqual(treap.root.key, 50)
         self.assertGreater(treap.root.priority, treap.root.left.priority)
         self.assertGreater(treap.root.priority, treap.root.right.priority)
@@ -1033,6 +1086,7 @@ class TestTreapBoundaryValues(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
+        # All keys should be found
         for key in keys:
             self.assertTrue(treap.search_key(key))
     
@@ -1045,6 +1099,7 @@ class TestTreapBoundaryValues(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
+        # All keys should be found
         for key in keys:
             self.assertTrue(treap.search_key(key))
     
@@ -1053,9 +1108,11 @@ class TestTreapBoundaryValues(unittest.TestCase):
         treap = Treap()
         treap.insert_key(0)
         
+        # Zero should be findable
         self.assertTrue(treap.search_key(0))
         self.assertEqual(treap.root.key, 0)
         
+        # Delete zero
         treap.delete_key(0)
         self.assertFalse(treap.search_key(0))
     
@@ -1068,7 +1125,7 @@ class TestTreapBoundaryValues(unittest.TestCase):
         for key in keys:
             treap.insert_key(key)
         
-        # Check BST property
+        # Check BST property with mixed keys
         result = []
         def inorder(node):
             if node:
@@ -1077,6 +1134,7 @@ class TestTreapBoundaryValues(unittest.TestCase):
                 inorder(node.right)
         
         inorder(treap.root)
+        # Should be sorted including negative and positive
         self.assertEqual(result, sorted(keys))
 
 
@@ -1095,6 +1153,7 @@ class TestTreapDeletionEdgeCases(unittest.TestCase):
         root_key = treap.root.key
         treap.delete_key(root_key)
         
+        # Root should be deleted
         self.assertFalse(treap.search_key(root_key))
         
         # All other keys should still be present
@@ -1122,6 +1181,7 @@ class TestTreapDeletionEdgeCases(unittest.TestCase):
         leaves = find_leaves(treap.root)
         for leaf in leaves:
             treap.delete_key(leaf)
+            # Leaf should no longer be found
             self.assertFalse(treap.search_key(leaf))
     
     def test_delete_in_reverse_insertion_order(self):
@@ -1136,8 +1196,10 @@ class TestTreapDeletionEdgeCases(unittest.TestCase):
         # Delete in reverse order
         for key in reversed(keys):
             treap.delete_key(key)
+            # Key should no longer be found
             self.assertFalse(treap.search_key(key))
         
+        # Tree should be empty
         self.assertIsNone(treap.root)
 
 
@@ -1159,6 +1221,7 @@ class TestTreapConsistencyChecks(unittest.TestCase):
                 return 0
             return 1 + count_nodes(node.left) + count_nodes(node.right)
         
+        # Should have 50 nodes
         self.assertEqual(count_nodes(treap.root), 50)
         
         # Delete half
@@ -1177,6 +1240,7 @@ class TestTreapConsistencyChecks(unittest.TestCase):
         for i in range(20):
             treap.insert_key(i)
         
+        # Verify BST and heap properties through structure
         def check_consistency(node, parent_key=None):
             if not node:
                 return True
@@ -1214,7 +1278,7 @@ class TestTreapConsistencyChecks(unittest.TestCase):
             else:
                 treap.search_key(key)
         
-        # Verify integrity
+        # Verify integrity after stress test
         def verify_structure(node):
             if not node:
                 return True, []
@@ -1239,6 +1303,7 @@ class TestTreapConsistencyChecks(unittest.TestCase):
             return left_ok and right_ok, left_keys + [node.key] + right_keys
         
         ok, _ = verify_structure(treap.root)
+        # Structure should be intact
         self.assertTrue(ok)
 
 

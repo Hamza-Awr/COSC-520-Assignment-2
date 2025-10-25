@@ -1,20 +1,31 @@
-# Balanced Binary Search Trees
+# Advanced Data Structures
 
-A comprehensive implementation and testing suite for three self-balancing binary search tree data structures: **AVL Tree**, **Red-Black Tree**, and **Treap**.
+A comprehensive implementation and testing suite for three advanced data structures: **AVL Tree**, **Red-Black Tree**, and **Treap**.
 
 ## Repository Structure
 
 ```
 ├── data_structures/
-│   ├── avl.py          # AVL Tree implementation
-│   ├── rbtree.py       # Red-Black Tree implementation
-│   └── treap.py        # Treap implementation
+│ ├── avl.py # AVL Tree implementation
+│ ├── rbtree.py # Red-Black Tree implementation
+│ ├── treap.py # Treap implementation
+│ └── plot_comparison.py # Performance comparison of all data structures
 ├── tests/
-│   ├── test_avl.py     # AVL Tree unit tests
-│   ├── test_rbtree.py  # Red-Black Tree unit tests
-│   └── test_treap.py   # Treap unit tests
-├── requirements.txt    # Project dependencies
-└── README.md          # This file
+│ ├── test_avl.py # AVL Tree unit tests
+│ ├── test_rbtree.py # Red-Black Tree unit tests
+│ └── test_treap.py # Treap unit tests
+├── Plots/ # Generated performance plots
+│ ├── AVL_Tree_Performance.png
+│ ├── Red-Black_Tree_Performance.png
+│ ├── Treap_Performance.png
+│ └── Overall_Data_structures_Performance.png
+├── Results/ # Stored benchmark timing data (JSON)
+│ ├── results_avl.json
+│ ├── results_rbtree.json
+│ └── results_treap.json
+├── requirements.txt # Project dependencies
+├── COSC_520_A2.ipynb # Original scratchpad notebook
+└── README.md # This file
 ```
 
 ## Data Structures
@@ -75,42 +86,6 @@ python -m unittest tests.test_rbtree -v
 python -m unittest tests.test_treap -v
 
 ```
-
-### Run Specific Test Classes
-```bash
-# Run only AVL rotation tests
-python -m unittest tests.test_avl.TestAVLTreeRotations -v
-
-# Run only Red-Black tree properties tests
-python -m unittest tests.test_rbtree.TestRBTreeProperties -v
-```
-
-## Test Coverage
-
-### AVL Tree Tests (50+ tests)
-- Basic operations (insert, search, delete)
-- All rotation cases (LL, RR, LR, RL)
-- Balance factor validation
-- Traversals (inorder, preorder, postorder)
-- Edge cases (1000+ elements, negative/string keys)
-- Stress tests with random operations
-
-### Red-Black Tree Tests (40+ tests)
-- All 5 Red-Black properties
-- Large-scale operations (10,000+ elements)
-- Random operation sequences (5,000+ ops)
-- Stress tests (repeated cycles, min/max deletions)
-- Consistency checks (parent pointers, no cycles)
-- Performance validation (logarithmic height)
-
-### Treap Tests (60+ tests)
-- BST and max-heap property validation
-- Randomization testing
-- Priority-based rotations
-- Large datasets (10,000+ elements)
-- Floating-point priority handling
-- Boundary value tests
-
 ## Usage Examples
 
 ### AVL Tree
@@ -192,6 +167,9 @@ python data_structures/rbtree.py
 
 # Run Treap benchmark
 python data_structures/treap.py
+
+# Generate overall performance comparison plot
+python data_structures/plot_comparison.py
 ```
 
 This will output timing data and generate a performance plot showing:
