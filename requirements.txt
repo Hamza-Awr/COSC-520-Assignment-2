@@ -1,0 +1,2 @@
+# Core dependencies for data structures
+matplotlib>=3.5.0
