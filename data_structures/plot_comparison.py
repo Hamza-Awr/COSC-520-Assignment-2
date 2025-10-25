@@ -37,7 +37,7 @@ n_list = avl["n_list"]
 
 # ---- Create subplots ----
 fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-titles = ["Insertion", "Lookup", "Deletion"]
+titles = ["Insertion", "Search", "Deletion"]
 ylabels = ["Avg time per insertion (s)", "Avg time per lookup (s)", "Avg time per deletion (s)"]
 
 # ---- Data tuples for iteration ----
